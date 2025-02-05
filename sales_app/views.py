@@ -395,12 +395,15 @@ def add_salesman(request):
         date_of_join = request.POST.get('date_of_join')
 
         if Salesman.objects.filter(email=email).exists() or Salesman.objects.filter(phone_number=phone_number).exists():
-            return JsonResponse({'error': 'Salesman with this email or phone number already exists'})
+            messages.error(request, "Salesman with this email or phone number already exists.")
+            return redirect("manage_salesman")
 
         Salesman.objects.create(name=name, email=email, phone_number=phone_number, date_of_join=date_of_join)
-        return JsonResponse({'success': 'Salesman added successfully'})
+        messages.success(request, "Salesman added successfully.")
+        return redirect("manage_salesman")
 
     return redirect("manage_salesman")
+
 
 
 def edit_salesman(request, salesman_id):
@@ -412,29 +415,26 @@ def edit_salesman(request, salesman_id):
         new_phone = request.POST.get('salesman_phone')
         new_join = request.POST.get('date_of_join')
 
-        # Check if the new name is different and already exists
-        if new_name != sales.name and Salesman.objects.filter(name=new_name).exists():
-            return JsonResponse({'error': 'This salesman already exists'}, status=400)
+        # Check if another salesman already has the updated details
+        if Salesman.objects.exclude(id=salesman_id).filter(email=new_email).exists():
+            messages.error(request, "Salesman with this email already exists.")
+            return redirect('edit_salesman', salesman_id=salesman_id)
 
-        if new_email != sales.email and Salesman.objects.filter(email=new_email).exists():
-            return JsonResponse({'error': 'This salesman already exists'}, status=400)
+        if Salesman.objects.exclude(id=salesman_id).filter(phone_number=new_phone).exists():
+            messages.error(request, "Salesman with this phone number already exists.")
+            return redirect('edit_salesman', salesman_id=salesman_id)
 
-        if new_phone != sales.phone_number and Salesman.objects.filter(phone_number=new_phone).exists():
-            return JsonResponse({'error': 'This salesman already exists'}, status=400)
+        sales.name = new_name
+        sales.email = new_email
+        sales.phone_number = new_phone
+        sales.date_of_join = new_join
+        sales.save()
 
+        messages.success(request, "Salesman details updated successfully.")
+        return redirect("manage_salesman")
 
-        try:
-            sales.name = new_name
-            sales.email = new_email
-            sales.phone_number = new_phone
-            sales.date_of_join = new_join
+    return render(request, "edit_salesman.html", {"sales": sales})
 
-            sales.save()
-            return JsonResponse({'success': 'Salesman updated successfully'})
-        except IntegrityError:
-            return JsonResponse({'error': 'This salesman already exists'}, status=400)
-
-    return JsonResponse({'name': sales.name})
 
 
 

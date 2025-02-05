@@ -2,15 +2,40 @@
 {% load static %}
 
 {% block content %}
+
 <div class="container-fluid">
     <div class="card">
         <div class="card-body">
             <h5 class="card-title fw-semibold mb-4">Manage Salesmen</h5>
-            <div class="text-center mb-4">
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSalesmanModal">Add New Salesman</button>
+            
+            <!-- Inline Add Salesman Form -->
+            <div class="card p-3 mb-4">
+                <h5 class="card-title fw-semibold">Add New Salesman</h5>
+                <form method="post" action="{% url 'add_salesman' %}">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label for="salesman_name" class="form-label">Salesman Name</label>
+                            <input type="text" class="form-control" id="salesman_name" name="salesman_name" required>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="salesman_email" class="form-label">Salesman Email</label>
+                            <input type="email" class="form-control" id="salesman_email" name="salesman_email" required>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="salesman_phone" class="form-label">Salesman Phone</label>
+                            <input type="text" class="form-control" id="salesman_phone" name="salesman_phone" required>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="date_of_join" class="form-label">Date Of Join</label>
+                            <input type="date" class="form-control" id="date_of_join" name="date_of_join" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Salesman</button>
+                </form>
             </div>
-
-            <!-- Responsive Table -->
+            
+            <!-- Salesmen List -->
             <div class="card mt-4">
                 <div class="card-body">
                     <h5 class="card-title fw-semibold mb-4">Current Salesmen
@@ -31,9 +56,7 @@
                                     <th scope="col">Email</th>
                                     <th scope="col">Phone Number</th>
                                     <th scope="col">Date of Join</th>
-
-                                    <th scope="col">Edit</th>
-                                    <th scope="col">Delete</th>
+                             
                                 </tr>
                             </thead>
                             <tbody>
@@ -44,24 +67,17 @@
                                     <td>{{ i.email }}</td>
                                     <td>{{ i.phone_number }}</td>
                                     <td>{{ i.date_of_join }}</td>
-
                                     <td>
-                                        <button class="btn btn-primary btn-sm edit-salesman-btn" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#editSalesmanModal" 
-                                                data-id="{{ i.id }}" 
-                                                data-name="{{ i.name }}"
-                                                data-email="{{i.email}}"
-                                                data-phonenumber="{{i.phone_number}}"
-                                                data-dateofjoin>Edit</button>
+                                        <a href="{% url 'edit_salesman' i.id %}" class="btn btn-primary btn-sm" onclick="return confirm('Are you sure you want to edit this salesman?');">Edit</a>
+
                                     </td>
                                     <td>
-                                        <a href="{% url 'delete_salesman' i.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this category?');">Delete</a>
+                                        <a href="{% url 'delete_salesman' i.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this salesman?');">Delete</a>
                                     </td>
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="4" class="text-center">No salesmen found</td>
+                                    <td colspan="7" class="text-center">No salesmen found</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -73,140 +89,9 @@
     </div>
 </div>
 
-<!-- Add Category Modal -->
-<div class="modal fade" id="addSalesmanModal" tabindex="-1" aria-labelledby="addSalesmanModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="post">
-                {% csrf_token %}
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addSalesmanModalLabel">Add Salesman</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="salesman_name" class="form-label">Salesman Name</label>
-                        <input type="text" class="form-control" id="salesman_name" name="salesman_name" required>
-                    </div>
-                    <div class="mb-3">
-                      <label for="salesman_email" class="form-label">Salesman Email</label>
-                      <input type="email" class="form-control" id="salesman_email" name="salesman_email" required>
-                  </div>
-                  <div class="mb-3">
-                    <label for="salesman_phone" class="form-label">Salesman Phone</label>
-                    <input type="text" class="form-control" id="salesman_phone" name="salesman_phone" required>
-                </div>
-                <div class="mb-3">
-                  <label for="date_of_join" class="form-label">Date Of Join</label>
-                  <input type="date" class="form-control" id="date_of_join" name="date_of_join" required>
-              </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Add Salesman</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Edit Category Modal -->
-<div class="modal fade" id="editSalesmanModal" tabindex="-1" aria-labelledby="editSalesmanModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form id="editSalesmanForm" method="post">
-                {% csrf_token %}
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editSalesmanModalLabel">Edit Salesman</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="edit-salesman-error" class="alert alert-danger d-none"></div> <!-- Error message -->
-                    <div class="mb-3">
-                        <label for="edit_salesman_name" class="form-label">Salesman Name</label>
-                        <input type="text" class="form-control" id="edit_salesman_name" name="salesman_name">
-                    </div>
-
-                    <div class="mb-3">
-                      <label for="edit_salesman_email" class="form-label">Salesman Email</label>
-                      <input type="text" class="form-control" id="edit_salesman_email" name="salesman_email">
-                  </div>
-
-                  <div class="mb-3">
-                    <label for="edit_salesman_phone" class="form-label">Salesman Phone</label>
-                    <input type="text" class="form-control" id="edit_salesman_phone" name="salesman_phone">
-                </div>
-
-                <div class="mb-3">
-                  <label for="edit_salesman_join" class="form-label">Date Of Join</label>
-                  <input type="date" class="form-control" id="edit_salesman_join" name="date_of_join">
-                </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var editSalesmanModal = document.getElementById('editSalesmanModal');
-
-    editSalesmanModal.addEventListener('show.bs.modal', function (event) {
-        var button = event.relatedTarget;
-        var salesmanId = button.getAttribute('data-id');
-        var salesmanName = button.getAttribute('data-name');
-        var salesmanEmail = button.getAttribute('data-email');
-        var salesmanPhone = button.getAttribute('data-phonenumber');
-        var salesmanJoindate = button.getAttribute('data-dateofjoin');
-
-        var form = document.getElementById('editSalesmanForm');
-        form.action = '{% url "edit_salesman" "0" %}'.replace("0", salesmanId);
-
-        var salesmanNameInput = document.getElementById('edit_salesman_name');
-        var salesmanEmailInput = document.getElementById('edit_salesman_email');
-        var salesmanPhoneInput = document.getElementById('edit_salesman_phone');
-        var salesmanJoindateInput = document.getElementById('edit_salesman_join');
-
-        salesmanNameInput.value = salesmanName;
-        salesmanEmailInput.value = salesmanEmail;
-        salesmanPhoneInput.value = salesmanPhone;
-        salesmanJoindateInput.value = salesmanJoindate;
 
 
-        // Reset error message
-        document.getElementById('edit-salesman-error').classList.add('d-none');
-    });
 
-    document.getElementById('editSalesmanForm').addEventListener('submit', function(event) {
-        event.preventDefault();
 
-        var form = this;
-        var formData = new FormData(form);
-        var errorDiv = document.getElementById('edit-salesman-error');
-
-        fetch(form.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                errorDiv.textContent = data.error;
-                errorDiv.classList.remove('d-none'); // Show error message
-            } else {
-                location.reload(); // Refresh the page on success
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    });
-});
-</script>
 
 {% endblock %}
