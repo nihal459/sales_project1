@@ -1,0 +1,337 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Bootstrap CSS -->
+
+<div class="container-fluid">
+    <!--  Row 1 -->
+    <div class="row">
+      <div class="col-lg-8 d-flex align-items-strech">
+        <div class="card w-100">
+          <div class="card-body">
+            <div class="d-sm-flex d-block align-items-center justify-content-between mb-9">
+              <div class="mb-3 mb-sm-0">
+                  <h5 class="card-title fw-semibold">Sales Trend</h5>
+              </div>
+              {% comment %} <div>
+                  <select id="monthSelector" class="form-select">
+                    <option value="current">Current Month</option>
+                    <option value="previous">Previous Month</option>
+                  </select>
+                  <select id="timeRangeSelector" class="form-select">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                  </select>
+              </div> {% endcomment %}
+          </div>
+          
+          
+          <div id="chart"></div>
+        
+
+
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-4">
+        <div class="row">
+            <div class="col-xl-12">
+                <!-- Revenue Overview -->
+                <div class="card overflow-hidden">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-9 fw-semibold">Total Revenue</h5>
+                        <div class="row align-items-center">
+                            <div class="col-8">
+                                <!-- Display Total Revenue -->
+                                <h4 class="fw-semibold mb-3" id="monthly-revenue">Rs.{{ total_revenue }}</h4>
+                                <div class="d-flex align-items-center mb-3">
+                                    <span
+                                        class="me-1 rounded-circle bg-light-green round-20 d-flex align-items-center justify-content-center">
+                                        <i class="ti ti-arrow-up-left text-green"></i>
+                                    </span>
+                                    <p class="text-dark me-1 fs-3 mb-0">Month: {{ month }}</p>
+                                    <p class="fs-3 mb-0">Year: {{ year }}</p>
+                                </div>
+                                <div class="d-flex align-items-center">
+                             
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="d-flex justify-content-center">
+                                    <div id="revenue-chart"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-12">
+                <!-- Sales Overview -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row align-items-start">
+                            <div class="col-8">
+                                <!-- Display Total Sales -->
+                                <h5 class="card-title mb-9 fw-semibold">Total Number Of Sales</h5>
+                                <h4 class="fw-semibold mb-3" id="monthly-sales">{{ total_sales }}</h4>
+                                <div class="d-flex align-items-center pb-1">
+                                    <span
+                                        class="me-2 rounded-circle bg-light-red round-20 d-flex align-items-center justify-content-center">
+                                        <i class="ti ti-arrow-down-right text-red"></i>
+                                    </span>
+                                    <p class="text-dark me-1 fs-3 mb-0">{{ month }}</p>
+                                    <p class="fs-3 mb-0">{{ year }}</p>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="d-flex justify-content-end">
+                                    <div class="text-white bg-secondary rounded-circle p-6 d-flex align-items-center justify-content-center">
+                                        <i class="ti ti-currency-dollar fs-6"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="sales-chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+  
+    
+
+
+    <div class="row">
+
+
+
+      <div class="col-lg-4 d-flex align-items-stretch">
+        <div class="card w-100">
+          <div class="card-body p-4">
+            <div class="mb-4">
+              <h5 class="card-title fw-semibold">Top 5 Selling Products</h5>
+            </div>
+            <ul class="timeline-widget mb-0 position-relative mb-n5">
+              {% for product in top_selling_products %}
+              <li class="timeline-item d-flex position-relative overflow-hidden">
+                <div class="timeline-time text-dark flex-shrink-0 text-end">{{ forloop.counter }}.</div>
+                <div class="timeline-badge-wrap d-flex flex-column align-items-center">
+                  <span class="timeline-badge border-2 border border-primary flex-shrink-0 my-8"></span>
+                  <span class="timeline-badge-border d-block flex-shrink-0"></span>
+                </div>
+                <div class="timeline-desc fs-3 text-dark mt-n1">
+                  {{ product.product__product_name }} <br>- {{ product.total_quantity_sold }} units sold
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+
+
+
+
+      <div class="col-lg-8 d-flex align-items-stretch">
+        <div class="card w-100">
+          <div class="card-body p-4">
+            <h5 class="card-title fw-semibold mb-4">Low Stock Products</h5>
+            <div class="table-responsive">
+              <table class="table text-nowrap mb-0 align-middle">
+                <thead class="text-dark fs-4">
+                  <tr>
+                    <th class="border-bottom-0">
+                      <h6 class="fw-semibold mb-0">Product Name</h6>
+                    </th>
+                    <th class="border-bottom-0">
+                      <h6 class="fw-semibold mb-0">Category</h6>
+                    </th>
+                    <th class="border-bottom-0">
+                      <h6 class="fw-semibold mb-0">Quantity</h6>
+                    </th>
+                    <th class="border-bottom-0">
+                      <h6 class="fw-semibold mb-0">Unit Price</h6>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for product in low_stock_products %}
+                    <tr {% if product.quantity <= 5 %}class="text-danger"{% endif %}>
+                      <td class="border-bottom-0"><h6 class="fw-semibold mb-0">{{ product.product_name }}</h6></td>
+                      <td class="border-bottom-0">
+                        <p class="mb-0 fw-normal">{{ product.product_category.name }}</p>
+                      </td>
+                      <td class="border-bottom-0">
+                        <h6 class="fw-semibold mb-0">{{ product.quantity }}</h6>
+                      </td>
+                      <td class="border-bottom-0">
+                        <h6 class="fw-semibold mb-0 fs-4">{{ product.price_per_unit }}</h6>
+                      </td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="4" class="text-center">No low stock products found</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+
+
+    </div>
+    <div class="row">
+
+      <div class="col-lg-6 d-flex align-items-stretch mt-4">
+        <div class="card w-100">
+          <div class="card-body p-4">
+            <h5 class="card-title fw-semibold mb-4">Revenue Breakdown by Salesperson</h5>
+            <canvas id="revenueChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Chart.js Script -->
+      <script>
+        var ctx = document.getElementById('revenueChart').getContext('2d');
+        var revenueData = {
+          labels: [
+            {% for salesperson in revenue_by_salesperson %}
+              "{{ salesperson.salesman }}"{% if not forloop.last %},{% endif %}
+            {% endfor %}
+          ],
+          datasets: [{
+            label: 'Revenue by Salesperson',
+            data: [
+              {% for salesperson in revenue_by_salesperson %}
+                {{ salesperson.total_revenue }}{% if not forloop.last %},{% endif %}
+              {% endfor %}
+            ],
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)', 
+              'rgba(54, 162, 235, 0.2)', 
+              'rgba(255, 206, 86, 0.2)', 
+              'rgba(75, 192, 192, 0.2)', 
+              'rgba(153, 102, 255, 0.2)', 
+              'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+              'rgba(255, 99, 132, 1)', 
+              'rgba(54, 162, 235, 1)', 
+              'rgba(255, 206, 86, 1)', 
+              'rgba(75, 192, 192, 1)', 
+              'rgba(153, 102, 255, 1)', 
+              'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+          }]
+        };
+
+        var revenueChart = new Chart(ctx, {
+          type: 'pie',
+          data: revenueData,
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(tooltipItem) {
+                    return tooltipItem.label + ': $' + tooltipItem.raw.toFixed(2);
+                  }
+                }
+              }
+            }
+          }
+        });
+      </script>
+
+
+      <div class="col-sm-6 col-xl-3">
+      
+      </div>
+      <div class="col-sm-6 col-xl-3">
+   
+      </div>
+      <div class="col-sm-6 col-xl-3">
+    
+      </div>
+      <div class="col-sm-6 col-xl-3">
+      
+      </div>
+    </div>
+    <div class="py-6 px-6 text-center">
+    </div>
+  </div>
+
+
+  <script>  
+    // Fetch sales data dynamically
+    document.addEventListener("DOMContentLoaded", function () {
+      // Initialize default chart (Current Month, Daily)
+      fetchSalesData('current', 'daily');
+  
+      // Handle change in month selector
+      document.getElementById('monthSelector').addEventListener('change', function () {
+          const selectedMonth = this.value;
+          const selectedTimeRange = document.getElementById('timeRangeSelector').value;
+          fetchSalesData(selectedMonth, selectedTimeRange);
+      });
+  
+      // Handle change in time range selector
+      document.getElementById('timeRangeSelector').addEventListener('change', function () {
+          const selectedMonth = document.getElementById('monthSelector').value;
+          const selectedTimeRange = this.value;
+          fetchSalesData(selectedMonth, selectedTimeRange);
+      });
+  
+      // Fetch and render sales data based on selected month and time range
+      function fetchSalesData(month, timeRange) {
+          fetch(`/get_sales_data/?time_range=${timeRange}`)
+              .then(response => response.json())
+              .then(data => {
+                  let selectedData = data[`${month}_month`];
+                  let categories = selectedData.categories;
+                  let sales = selectedData.sales;
+  
+                  var options = {
+                      series: [{
+                          name: "Total Sales",
+                          data: sales
+                      }],
+                      chart: {
+                          type: 'line',
+                          height: 345
+                      },
+                      colors: ["#5D87FF"],
+                      xaxis: {
+                          categories: categories
+                      },
+                      stroke: {
+                          curve: 'smooth'
+                      }
+                  };
+  
+                  var chart = new ApexCharts(document.querySelector("#chart"), options);
+                  chart.render();
+              })
+              .catch(error => console.error("Error fetching sales data:", error));
+      }
+    });
+  
+  </script>
+
+
+
+{% endblock %}
